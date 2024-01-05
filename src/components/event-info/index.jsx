@@ -1,0 +1,1 @@
+export { default as EventInfo } from './event-info.component'

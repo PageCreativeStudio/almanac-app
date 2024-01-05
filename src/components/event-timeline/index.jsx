@@ -1,0 +1,1 @@
+export { default as EventTimeline } from './event-timeline.component'

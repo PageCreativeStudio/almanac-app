@@ -1,0 +1,1 @@
+export { default as EventTimelineHorizontal } from './event-timeline-horizontal.component'

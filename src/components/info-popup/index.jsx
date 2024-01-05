@@ -1,0 +1,1 @@
+export { default as InfoPopup } from './info-popup.component';

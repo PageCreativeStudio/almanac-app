@@ -1,0 +1,1 @@
+export { default as SidepanelRight } from './sidepanel-right.component'

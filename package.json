@@ -1,0 +1,57 @@
+{
+  "name": "fmc-alamanc",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/babel-plugin": "^11.9.2",
+    "@emotion/react": "^11.9.0",
+    "@emotion/styled": "^11.8.1",
+    "@splidejs/react-splide": "^0.7.5",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.2.0",
+    "@testing-library/user-event": "^13.5.0",
+    "customize-cra": "^1.0.0",
+    "emotion-reset": "^3.0.1",
+    "file-saver": "^2.0.5",
+    "ics": "^3.4.0",
+    "moment": "^2.29.4",
+    "moment-timezone": "^0.5.43",
+    "polished": "^4.2.2",
+    "react": "^18.1.0",
+    "react-app-rewire-workbox": "^2.0.1",
+    "react-app-rewired": "^2.2.1",
+    "react-calendar": "^3.7.0",
+    "react-cssfx-loading": "^1.1.0",
+    "react-dom": "^18.1.0",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "5.0.1",
+    "reactjs-popup": "^2.0.5",
+    "reflexbox": "^4.0.6",
+    "web-vitals": "^2.1.4",
+    "workbox-webpack-plugin": "4.3.1"
+  },
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
