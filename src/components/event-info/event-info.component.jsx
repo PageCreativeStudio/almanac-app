@@ -3,54 +3,74 @@ import { Flex } from "reflexbox";
 import { Image, Wrapper, Title, Text, Circle, ContentWrapper, OverflowWrapper, BackArrow } from "./event-info.styles";
 import { withTheme } from "@emotion/react";
 
-const EventInfo = ({ theme, title, date, dateEnd, time, description, image, colour = theme.colors.primary, onClick }) => {
+const EventInfo = ({ theme, title, date, dateEnd, time, timeEnd, description, image, colour = theme.colors.primary, onClick }) => {
 
   const formatICSDate = (date, time) => {
     if (!date) {
-      return "";
+        return "";
     }
+
     const dateObj = new Date(date);
-    // Set the time to 12:00 PM (noon) if no time is available
-    if (!time) {
-      dateObj.setHours(12, 0, 0, 0);
+
+    if (time) {
+        const timeParts = time.match(/(\d+):(\d+)\s*([ap]m)/i);
+
+        if (timeParts) {
+            let hours = parseInt(timeParts[1], 10);
+            const minutes = parseInt(timeParts[2], 10);
+            const period = timeParts[3].toLowerCase();
+
+            if (period === "pm" && hours !== 12) {
+                hours += 12;
+            }
+
+            dateObj.setHours(hours, minutes);
+        } else {
+            console.error(`Failed to parse time: ${time}`);
+        }
     } else {
-      // Extract hours, minutes, and AM/PM from the time
-      const timeParts = time.match(/(\d+):(\d+)\s*([ap]m)/i);
-      if (!timeParts) {
-        // If time format doesn't match, return the formatted date without any time
-        return dateObj.toISOString().replace(/[:-]/g, "").replace(/\.000Z$/, "Z").substring(0, 8);
-      }
-      let hours = parseInt(timeParts[1], 10);
-      const minutes = parseInt(timeParts[2], 10);
-      const period = timeParts[3].toLowerCase();
-      // Adjust hours if PM and not 12 PM
-      if (period === "pm" && hours !== 12) {
-        hours += 12;
-      }
-      // Set the time
-      dateObj.setHours(hours, minutes);
+        // If no time is available, set hours, minutes, seconds, and milliseconds to 0 (midnight)
+        dateObj.setHours(0, 0, 9, 9);
+
+        // Adjust to London time zone
+        const londonOffset = 0.9; // London is UTC+0 or UTC+1 (during daylight saving time)
+        dateObj.setMinutes(dateObj.getMinutes() + londonOffset);
     }
+
+    const year = dateObj.getUTCFullYear();
+    const month = (dateObj.getUTCMonth() + 1).toString().padStart(2, '0');
+    const day = dateObj.getUTCDate().toString().padStart(2, '0');
+    const hours = dateObj.getUTCHours().toString().padStart(2, '0');
+    const minutes = dateObj.getUTCMinutes().toString().padStart(2, '0');
+    const seconds = dateObj.getUTCSeconds().toString().padStart(2, '0');
+
     // Format the date and time as "YYYYMMDDTHHMMSSZ"
-    const formattedDate = dateObj.toISOString().replace(/[:-]/g, "").replace(/\.000Z$/, "Z");
+    const formattedDate = `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
     return formattedDate;
-  };
+};
+
 
 
   const generateCalendarData = (startDate, endDate) => {
     const formattedStartDate = formatICSDate(startDate, time);
     const formattedEndDate = formatICSDate(endDate, time);
-
+  
     const calendarData = `BEGIN:VCALENDAR
 VERSION:2.0
+PRODID:CALENDAR
 BEGIN:VEVENT
 SUMMARY:${title}
 DTSTART:${formattedStartDate}
 DTEND:${formattedEndDate}
+DESCRIPTION:${description || ""}
 END:VEVENT
 END:VCALENDAR
-  `.trim();
-    return `data:text/calendar;charset=utf-8,${encodeURIComponent(calendarData)}`;
+    `.trim();
+  
+    const blob = new Blob([calendarData], { type: 'text/calendar;charset=utf-8' });
+    return window.URL.createObjectURL(blob);
   };
+  
 
   const handleDownload = () => {
     if (!date && !dateEnd) {
@@ -103,17 +123,36 @@ END:VCALENDAR
       endDateStringWithoutTime = startDateStringWithoutTime;
     }
 
-    // Generate the .ics file with the new dates (without time)
-    const calendarData = generateCalendarData(
-      new Date(startDateStringWithoutTime),
-      new Date(endDateStringWithoutTime)
-    );
+    const filename = `${title}.ics`;
 
-    const element = document.createElement("a");
-    element.href = calendarData;
-    element.download = `${title}.ics`;
-    document.body.appendChild(element);
-    element.click();
+    const calendarDataUrl = generateCalendarData(
+      new Date(startDateStringWithoutTime),
+      new Date(endDateStringWithoutTime),
+      time,
+      timeEnd
+    );
+  
+    // Check if the device is a mobile screen
+    if (window.innerWidth <= 767) {
+      const downloadLink = generateCalendarData(
+        new Date(startDateStringWithoutTime),
+        new Date(endDateStringWithoutTime),
+        time,
+        timeEnd
+      );
+  
+      window.open(downloadLink, '_blank');
+    } else {
+      
+      const downloadLink = generateCalendarData(
+        new Date(startDateStringWithoutTime),
+        new Date(endDateStringWithoutTime),
+        time,
+        timeEnd
+      );
+  
+       window.open(downloadLink, '_blank');
+    }
   };
 
 
@@ -155,6 +194,7 @@ END:VCALENDAR
           <Text>
             {date && date}
             {time && <>, {time}</>}
+            {timeEnd && <>, {timeEnd}</>}
             {dateEnd && <> - {dateEnd}</>}
           </Text>
         )}
