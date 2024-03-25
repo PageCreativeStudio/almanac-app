@@ -76,7 +76,7 @@ const overflowWrapperStyling = (props) => css `
   overflow-y: ${props.scroll};
   @media screen and (max-width: 900px) {
     overflow-y: initial;
-    height: 100%;
+    height: auto;
   }
   padding-right: ${props.theme.spacing[0]};
   /* custom scrollbar */
