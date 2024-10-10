@@ -4,3 +4,4 @@ export { default as Contact } from "./contact";
 export { default as Committees } from "./committees";
 export { default as CorporateMembership } from "./corporate-membership";
 export { default as TheCourt } from "./the-court";
+export { default as Updates } from "./updates";

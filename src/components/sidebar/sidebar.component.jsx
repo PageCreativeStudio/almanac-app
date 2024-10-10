@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import { Flex, Box } from 'reflexbox'
-import { Wrapper, Logo, Title, Text, NavItem, FooterLink, FooterSocialLink, FooterWrapper, HiddenSmall } from "./sidebar.style";
+import { Wrapper, Logo, Title, LastNavItem, Text, NavItem, FooterLink, FooterSocialLink, FooterWrapper, HiddenSmall } from "./sidebar.style";
 import { withTheme } from '@emotion/react'
 import useOutsideAlerter from '../../hooks/click-outside-component';
 
@@ -12,6 +12,7 @@ import contactIcon from '../../assets/svgs/contact-icon';
 import dashboardIcon from '../../assets/svgs/dashboard-icon';
 import officersIcon from '../../assets/svgs/officers-icon';
 import corporateIcon from '../../assets/svgs/corporate-icon';
+import updatesIcon from '../../assets/svgs/updates';
 
 import facebookIcon from '../../assets/svgs/facebook';
 import youtubeIcon from '../../assets/svgs/youtube';
@@ -20,7 +21,7 @@ import twitterIcon from '../../assets/svgs/twitter';
 import instagramIcon from '../../assets/svgs/instagram';
 
 
-const Sidebar = ({theme, left, onOutsideClick, onMenuClick}) => {
+const Sidebar = ({ theme, left, onOutsideClick, onMenuClick }) => {
   const sidebarRef = useRef(null)
 
   useOutsideAlerter(sidebarRef, onOutsideClick,)
@@ -28,7 +29,7 @@ const Sidebar = ({theme, left, onOutsideClick, onMenuClick}) => {
   return (
     <Wrapper ref={sidebarRef} left={left} flexWrap="wrap" width={theme.sidebarWidth} alignItems="space-between" justifyContent="center">
       <Box width="100%" className="navbar navbar-expand navbar-dark bg-dark">
-        <Box marginBottom={theme.spacing[3]}>
+        <Box marginBottom={theme.spacing[2]}>
           <NavLink className="navbar-brand" to="/">
             <Flex flexDirection="column" alignItems="center">
               <Logo src={img} alt="FMC Logo" />
@@ -94,6 +95,14 @@ const Sidebar = ({theme, left, onOutsideClick, onMenuClick}) => {
                 <HiddenSmall>Contact</HiddenSmall>
               </NavItem>
             </li>
+            <LastNavItem>
+              <NavItem onClick={onMenuClick && onMenuClick} to="/updates">
+                <Box marginTop="0.1rem" marginRight={theme.spacing[0]}>
+                  {updatesIcon}
+                </Box>
+                <HiddenSmall>Calendar Event Updates Log</HiddenSmall>
+              </NavItem>
+            </LastNavItem>
           </ul>
         </nav>
       </Box>
@@ -106,7 +115,7 @@ const Sidebar = ({theme, left, onOutsideClick, onMenuClick}) => {
             {twitterIcon}
           </FooterSocialLink>
           <FooterSocialLink target="_blank" href="https://www.facebook.com/FurnitureMakersCompany">
-           {facebookIcon}
+            {facebookIcon}
           </FooterSocialLink>
           <FooterSocialLink target="_blank" href="https://www.linkedin.com/company/the-furniture-makers-company/">
             {linkedinIcon}

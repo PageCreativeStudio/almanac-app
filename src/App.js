@@ -12,7 +12,8 @@ import {
   Contact,
   Calendar,
   TheCourt,
-  CorporateMembership
+  CorporateMembership,
+  Updates
 } from "./pages";
 import { MobileHeader } from './components/mobile-header';
 import MemberInfo from './pages/member-info';
@@ -40,6 +41,7 @@ const App = () => {
             <Route exact path="/contact" element={<Contact />} />
             <Route exact path="/charity-roles" element={<CharityRoles />} />
             <Route exact path="/member" element={<MemberInfo />} />
+            <Route exact path="/updates" element={<Updates />} />
           </Routes>
         </Container>
       </Router>

@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import {css} from '@emotion/react';
+import { css } from '@emotion/react';
 import { Flex } from 'reflexbox'
 import { lighten } from 'polished';
 
@@ -20,7 +20,7 @@ const titleStyling = (props) => css`
 `
 
 const textStyling = (props) => css`
-  color: ${props.primary ?  lighten('0.44', `${props.theme.colors.primary}`) : props.theme.colors.darkGrey};
+  color: ${props.primary ? lighten('0.44', `${props.theme.colors.primary}`) : props.theme.colors.darkGrey};
   font-weight: ${props.theme.fontWeights.body};
   line-height: ${props.theme.lineHeights.base};
   font-size: ${props.theme.fontSizes[1]};
@@ -33,7 +33,7 @@ const textStyling = (props) => css`
 const textBoldStyling = (props) => css`
   display: block;
   width: 100%;
-  color: ${props.primary ?  lighten('0.44', `${props.theme.colors.primary}`) : props.theme.colors.dark};
+  color: ${props.primary ? lighten('0.44', `${props.theme.colors.primary}`) : props.theme.colors.dark};
   font-weight: ${props.theme.fontWeights.bold};
   line-height: ${props.theme.lineHeights.base};
   font-size: ${props.theme.fontSizes[1]};
@@ -46,7 +46,7 @@ const textBoldStyling = (props) => css`
 
 
 const smallTextStyling = (props) => css`
-  color: ${props.primary ?  lighten('0.44', `${props.theme.colors.primary}`) : props.theme.colors.darkGrey};
+  color: ${props.primary ? lighten('0.44', `${props.theme.colors.primary}`) : props.theme.colors.darkGrey};
   font-weight: ${props.theme.fontWeights.bold};
   line-height: ${props.theme.lineHeights.base};
   font-size: ${props.theme.fontSizes[0]};
@@ -81,7 +81,8 @@ const eventsStyling = (props) => css`
   transition: 0.3s;
   opacity: ${props.show ? '1' : '0'};
   position: absolute;
-  width: 24rem;
+  width: 100%;
+  max-width: 42rem;
   top: calc(100% + 0.5rem);
   left: 0;
   border-radius: 0rem 0rem 1rem 1rem;
@@ -92,7 +93,7 @@ const eventsStyling = (props) => css`
 `
 
 const linkStyling = (props) => css`
-  color: ${!props.primary ?  props.theme.colors.primary : props.theme.colors.darkGrey};
+  color: ${!props.primary ? props.theme.colors.primary : props.theme.colors.darkGrey};
   text-decoration: underline;
   font-weight: ${props.theme.fontWeights.bold};
   line-height: ${props.theme.lineHeights.base};
@@ -104,11 +105,29 @@ const linkStyling = (props) => css`
   }
 `
 
+const downloadButtonStyling = (props) => css`
+  display: flex;
+  align-items: center;
 
+   svg{ 
+    background:linear-gradient(180deg, #E23734 0%, #981614 100%);
+    border-radius:4px;
+  }
 
+  svg {
+    width: 6rem;
+    height: 5rem;
+    margin-right: 0.5rem;
 
+    @media (max-width: 767px) {
+        width: 5rem;
+        height: 4rem;
+        margin-left: -2rem;
+    }
+  }
+`;
 
-
+export const DownloadButton = styled(Flex)(downloadButtonStyling);
 export const Wrapper = styled(Flex)(wrapperStyling);
 export const EventsWrapper = styled(Flex)(eventsWrapperStyling);
 export const Events = styled.div(eventsStyling);

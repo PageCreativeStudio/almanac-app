@@ -12,26 +12,25 @@ import { useEffectOnce } from "../hooks/use-effect-once";
 const Dashboard = () => {
   const [eventsFormatted, setEventsFormatted] = useState(null);
 
-  const [events, setEvents] = useState(null)
-  const [pageData, setPageData] = useState(null)
-  const [eventsCategories, setEventsCategories] = useState(null)
+  const [events, setEvents] = useState(null);
+  const [pageData, setPageData] = useState(null);
+  const [eventsCategories, setEventsCategories] = useState(null);
 
   // Fetch page data
   useEffectOnce(() => {
-    getData(null, 366, setPageData).catch(console.error)
-    getData(eventsEndpoint, null, setEvents).catch(console.error)
-    getData(categoriesEndpoint, null, setEventsCategories).catch(console.error)
-  }, [])
+    getData(null, 366, setPageData).catch(console.error);
+    getData(eventsEndpoint, null, setEvents).catch(console.error);
+    getData(categoriesEndpoint, null, setEventsCategories).catch(console.error);
+  }, []);
 
-  // add class for colour to event object and remove irrelivant data from individual events objects
+  // Format and filter events
   useEffect(() => {
-    if (!eventsCategories) return
-    if (!events) return
+    if (!eventsCategories || !events) return;
 
     const formattedEvents = events.map((x) => {
       let indexColor = eventsCategories.findIndex((category) => {
-        if (!x.acf.category) return false
-        return category.name === x.acf.category[0].name
+        if (!x.acf.category) return false;
+        return category.name === x.acf.category[0].name;
       });
       return {
         id: x.id,
@@ -44,25 +43,25 @@ const Dashboard = () => {
         eventCategory: x.acf.category ? x.acf.category[0].name : 'default',
         color: eventsCategories[indexColor] && eventsCategories[indexColor].acf.colour,
         active: false,
-      }
-    }).sort((a, b) => {
-      return new Date(`${a.start}:${a.time}`) - new Date(`${b.start}:${b.time}`);
-    }).filter(event => {
-      const parts = event.start.split(/[- :]/);
-      var month = parts[1];
-      var year = parts[0];
-      var currentdate = yesterday;
-      var cur_month = currentdate.getMonth() + 1;
-      var cur_year = currentdate.getFullYear();
-      return cur_month == month && year == cur_year && currentdate.getTime() <= new Date(event.start).getTime()
+      };
     })
-    setEventsFormatted(formattedEvents)
-  }, [events, eventsCategories])
+    .sort((a, b) => {
+      return new Date(`${a.start} ${a.time}`) - new Date(`${b.start} ${b.time}`);
+    })
+    .filter(event => {
+      const eventDate = new Date(event.start);
+      const currentdate = new Date();
+      const cur_month = currentdate.getMonth() + 1;
+      const cur_year = currentdate.getFullYear();
+      const eventMonth = eventDate.getMonth() + 1;
+      const eventYear = eventDate.getFullYear();
 
-  const today = new Date();
-  var yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-  yesterday.toLocaleDateString();
+      // Return events for the current month and year
+      return eventMonth === cur_month && eventYear === cur_year;
+    });
+
+    setEventsFormatted(formattedEvents);
+  }, [events, eventsCategories]);
 
   return (
     <>
@@ -71,19 +70,26 @@ const Dashboard = () => {
       ) : (
         <>
           <Flex flexWrap="wrap" marginBottom="5rem">
-            {(pageData && pageData.acf && pageData.acf.title) && <Box width={['100%', '100%', '100%', 'calc(25% - 5rem)']} marginRight={['0', '0', '0', '5rem']}>
-              <LargeH1Title>{pageData.acf.title}</LargeH1Title>
-            </Box>}
-            {(pageData && pageData.acf && pageData.acf.text_1) && <Box marginBottom={['2.5rem']} width={['100%', '100%', '100%', 'calc(37.5% - 5rem)']} marginRight={['0', '0', '0', '5rem']}>
-              <PText dangerouslySetInnerHTML={{ __html: pageData.acf.text_1 }} />
-            </Box>}
-            {(pageData && pageData.acf && pageData.acf.welcome_image) && <Box width={['100%', '100%', '100%', 'calc(37.5% - 5rem)']}>
-              <Image src={pageData.acf.welcome_image.url} alt="welcome" />
-              <b><PText dangerouslySetInnerHTML={{ __html: pageData.acf.welcome_image.title }} /></b>
-
-            </Box>}
+            {pageData?.acf?.title && (
+              <Box width={['100%', '100%', '100%', 'calc(25% - 5rem)']} marginRight={['0', '0', '0', '5rem']}>
+                <LargeH1Title>{pageData.acf.title}</LargeH1Title>
+              </Box>
+            )}
+            {pageData?.acf?.text_1 && (
+              <Box marginBottom={['2.5rem']} width={['100%', '100%', '100%', 'calc(37.5% - 5rem)']} marginRight={['0', '0', '0', '5rem']}>
+                <PText dangerouslySetInnerHTML={{ __html: pageData.acf.text_1 }} />
+              </Box>
+            )}
+            {pageData?.acf?.welcome_image && (
+              <Box width={['100%', '100%', '100%', 'calc(37.5% - 5rem)']}>
+                <Image src={pageData.acf.welcome_image.url} alt="welcome" />
+                <b>
+                  <PText dangerouslySetInnerHTML={{ __html: pageData.acf.welcome_image.title }} />
+                </b>
+              </Box>
+            )}
           </Flex>
-          {eventsFormatted && eventsFormatted.length && (
+          {eventsFormatted && eventsFormatted.length > 0 && (
             <Box>
               <Flex flexWrap="wrap" justifyContent="space-between">
                 <H1Title>THIS MONTH'S EVENTS</H1Title>

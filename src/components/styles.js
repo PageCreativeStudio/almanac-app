@@ -1,5 +1,5 @@
-import styled from '@emotion/styled'
-import {css} from '@emotion/react';
+import styled from '@emotion/styled';
+import { css } from '@emotion/react';
 
 const titleStyling = (props) => css`
   color: ${props.theme.colors.dark};
@@ -7,7 +7,7 @@ const titleStyling = (props) => css`
   line-height: ${props.theme.lineHeights.base};
   font-size: ${props.theme.fontSizes[6]};
   margin-bottom: ${props.theme.spacing[1]};
-`
+`;
 
 const largeTitleStyling = (props) => css`
   color: ${props.theme.colors.dark};
@@ -18,7 +18,7 @@ const largeTitleStyling = (props) => css`
   @media screen and (max-width: 1700px) {
     font-size: ${props.theme.fontSizes[6]};
   }
-`
+`;
 
 const lightTextStyling = (props) => css`
   color: ${props.theme.colors.darkGrey};
@@ -26,29 +26,43 @@ const lightTextStyling = (props) => css`
   line-height: ${props.theme.lineHeights.base};
   font-size: ${props.theme.fontSizes[6]};
   margin-bottom: ${props.theme.spacing[1]};
-`
+`;
 
 const textStyling = (props) => css`
   color: ${props.theme.colors.dark};
-  font-weight: ${props.theme.fontWeights.body };
+  font-weight: ${props.theme.fontWeights.body};
   line-height: ${props.theme.lineHeights.medium};
   font-size: ${props.theme.fontSizes[3]};
   b {
     color: ${props.theme.colors.primary};
     font-weight: ${props.theme.fontWeights.bold};
   }
-`
+`;
 
 const tileStyling = (props) => css`
   color: ${props.theme.colors.dark};
   font-weight: ${props.theme.fontWeights.black};
   line-height: ${props.theme.lineHeights.base};
-   font-size: ${props.theme.fontSizes[3]};
-`
+  font-size: ${props.theme.fontSizes[3]};
+`;
 
 const imageStyling = (props) => css`
   width: 100%;
-`
+`;
+
+const flexContainerStyling = (props) => css`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: solid 1px #bbbbbb;
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+`;
+
+export const FlexContainer = styled.div(flexContainerStyling);
 export const Image = styled.img(imageStyling);
 export const LightText = styled.span(lightTextStyling);
 export const H1Title = styled.h1(titleStyling);

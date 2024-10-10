@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import {css} from '@emotion/react';
+import { css } from '@emotion/react';
 import { Flex } from 'reflexbox'
 import { NavLink } from "react-router-dom";
 import { lighten } from 'polished';
@@ -54,7 +54,7 @@ const logoStyling = (props) => css`
 `
 
 const navItemStyling = (props) => css`
-  padding: 2rem 1.2rem;
+  padding: 1.5rem 1.2rem;
   background-color: ${props.theme.colors.light};
   line-height: ${props.theme.lineHeights.base};
   border-radius: 1rem;
@@ -71,6 +71,16 @@ const navItemStyling = (props) => css`
     color: ${props.theme.colors.primary};
   }
 `
+
+const lastNavItemStyling = (props) => css`
+  &:last-child {
+    margin-bottom: 2rem;
+    border-top: solid 2px #d1d1d1;
+    margin-top: 1rem;
+    padding-top: 1.8rem;
+    margin-right: 9px;
+  }
+`;
 
 const footerLinkStyling = (props) => css`
   margin-bottom: ${props.theme.spacing[0]};
@@ -107,4 +117,5 @@ export const FooterLink = styled.a(footerLinkStyling);
 export const FooterSocialLink = styled.a(footerSocialLinkStyling);
 export const FooterWrapper = styled(Flex)(hiddenSmall);
 export const HiddenSmall = styled.div(hiddenSmall);
+export const LastNavItem = styled.li(lastNavItemStyling);
 
