@@ -125,61 +125,61 @@ END:VCALENDAR`.trim();
                             </PText>
                         </Box>
                     )}
-                    {updates?.acf?.updated_events?.map((event, index) => {
-                        // Create a date object for the event end date and time
-                        const eventEndDate = new Date(event.date_from);
-                        if (event.time_end) {
-                            const timeParts = event.time_end.match(/(\d+):(\d+)\s*([ap]m)/i);
-                            if (timeParts) {
-                                let hours = parseInt(timeParts[1], 10);
-                                const minutes = parseInt(timeParts[2], 10);
-                                const period = timeParts[3].toLowerCase();
-                                if (period === "pm" && hours !== 12) hours += 12;
-                                eventEndDate.setHours(hours, minutes);
+                    {updates?.acf?.updated_events?.length > 0 ? (
+                        updates.acf.updated_events.map((event, index) => {
+                            const eventEndDate = new Date(event.date_from);
+                            if (event.time_end) {
+                                const timeParts = event.time_end.match(/(\d+):(\d+)\s*([ap]m)/i);
+                                if (timeParts) {
+                                    let hours = parseInt(timeParts[1], 10);
+                                    const minutes = parseInt(timeParts[2], 10);
+                                    const period = timeParts[3].toLowerCase();
+                                    if (period === "pm" && hours !== 12) hours += 12;
+                                    eventEndDate.setHours(hours, minutes);
+                                }
+                            } else {
+                                eventEndDate.setHours(0, 0, 0, 0);
                             }
-                        } else {
-                            // If no end time, default to the start time
-                            eventEndDate.setHours(0, 0, 0, 0); // No end time, treat as all day
-                        }
 
-                        // Check if the event end time has passed
-                        const hasPassed = eventEndDate < currentDate;
+                            const hasPassed = eventEndDate < new Date();
 
-                        // Only render upcoming events
-                        if (hasPassed) return null;
+                            if (hasPassed) return null;
 
-                        return (
-                            <Wrapper key={index} style={{ borderTop: "solid 1px #bbbbbb", maxWidth: "88rem" }}>
-                                {event.image && <Image backgroundImage={event.image} />}
-                                <ContentWrapper style={{ padding: "3rem 7px 2rem", height: "auto", overflow: "auto" }}>
-                                    {event.title && (
-                                        <FlexContainer style={{ border: "0" }}>
-                                            <Title>
-                                                <span style={{ fontWeight: "700", fontSize: "23px", textTransform: "capitalize", color: "rgb(226, 55, 52)", marginBottom: "11px", display: "block" }}>
-                                                    {event.title}
-                                                </span>
-                                                {(event.date_from || event.time) && (
-                                                    <Text style={{ fontSize: "15px", paddingRight: "3rem", fontWeight: "700", marginBottom: "15px" }}>
-                                                        {formatEventDate(event.date_from)}
-                                                        {event.date_to && <> - {formatEventDate(event.date_to)}</>}
-                                                        {(event.time || event.time_end) && ` | ${event.time}${event.time_end ? ` - ${event.time_end}` : ''}`}
-                                                    </Text>
-                                                )}
-                                                {event.description && (
-                                                    <OverflowWrapper scroll="auto">
-                                                        <Text style={{ fontSize: "17px", fontWeight: "400", textTransform: "none", lineHeight: "27px", maxWidth: "57rem" }} dangerouslySetInnerHTML={{ __html: event.description }} />
-                                                    </OverflowWrapper>
-                                                )}
-                                            </Title>
-                                            <a style={{ placeSelf: "baseline" }} href="#" onClick={() => handleDownload(event)}>
-                                                <DownloadIcon />
-                                            </a>
-                                        </FlexContainer>
-                                    )}
-                                </ContentWrapper>
-                            </Wrapper>
-                        );
-                    })}
+                            return (
+                                <Wrapper key={index} style={{ borderTop: "solid 1px #bbbbbb", maxWidth: "88rem" }}>
+                                    {event.image && <Image backgroundImage={event.image} />}
+                                    <ContentWrapper style={{ padding: "3rem 7px 2rem", height: "auto", overflow: "auto" }}>
+                                        {event.title && (
+                                            <FlexContainer style={{ border: "0" }}>
+                                                <Title>
+                                                    <span style={{ fontWeight: "700", fontSize: "23px", textTransform: "capitalize", color: "rgb(226, 55, 52)", marginBottom: "11px", display: "block" }}>
+                                                        {event.title}
+                                                    </span>
+                                                    {(event.date_from || event.time) && (
+                                                        <Text style={{ fontSize: "15px", paddingRight: "3rem", fontWeight: "700", marginBottom: "15px" }}>
+                                                            {formatEventDate(event.date_from)}
+                                                            {event.date_to && <> - {formatEventDate(event.date_to)}</>}
+                                                            {(event.time || event.time_end) && ` | ${event.time}${event.time_end ? ` - ${event.time_end}` : ''}`}
+                                                        </Text>
+                                                    )}
+                                                    {event.description && (
+                                                        <OverflowWrapper scroll="auto">
+                                                            <Text style={{ fontSize: "17px", fontWeight: "400", textTransform: "none", lineHeight: "27px", maxWidth: "57rem" }} dangerouslySetInnerHTML={{ __html: event.description }} />
+                                                        </OverflowWrapper>
+                                                    )}
+                                                </Title>
+                                                <a style={{ placeSelf: "baseline" }} href="#" onClick={() => handleDownload(event)}>
+                                                    <DownloadIcon />
+                                                </a>
+                                            </FlexContainer>
+                                        )}
+                                    </ContentWrapper>
+                                </Wrapper>
+                            );
+                        })
+                    ) : (
+                        <PText>No events available at this time.</PText>
+                    )}
                 </Box>
             )}
         </>
