@@ -48,16 +48,19 @@ const Dashboard = () => {
     .sort((a, b) => {
       return new Date(`${a.start} ${a.time}`) - new Date(`${b.start} ${b.time}`);
     })
-    .filter(event => {
-      const eventDate = new Date(event.start);
-      const currentdate = new Date();
-      const cur_month = currentdate.getMonth() + 1;
-      const cur_year = currentdate.getFullYear();
-      const eventMonth = eventDate.getMonth() + 1;
-      const eventYear = eventDate.getFullYear();
 
-      // Return events for the current month and year
-      return eventMonth === cur_month && eventYear === cur_year;
+    .filter(event => {
+      const eventStartDate = new Date(`${event.start} ${event.time}`);
+      const eventEndDate = event.end ? new Date(`${event.end} ${event.time_end || event.time}`) : eventStartDate;
+      const currentDate = new Date();
+    
+      const curMonth = currentDate.getMonth() + 1;
+      const curYear = currentDate.getFullYear();
+      const eventMonth = eventStartDate.getMonth() + 1;
+      const eventYear = eventStartDate.getFullYear();
+    
+      // Return events that are in the current month and have not passed (check end date if available)
+      return eventMonth === curMonth && eventYear === curYear && eventEndDate >= currentDate;
     });
 
     setEventsFormatted(formattedEvents);
