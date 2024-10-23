@@ -6,6 +6,7 @@ import { Loading } from "../components/loading";
 import { useEffectOnce } from "../hooks/use-effect-once";
 import { withTheme } from "@emotion/react";
 import DownloadIcon from '../assets/svgs/download-event';
+import PrintIcon from '../assets/svgs/print';
 import { Image, Wrapper, Title, Text, ContentWrapper, OverflowWrapper } from "../components/event-info/event-info.styles";
 
 const getOrdinalSuffix = (day) => {
@@ -20,7 +21,6 @@ const getOrdinalSuffix = (day) => {
 
 const formatEventDate = (dateString, timeString) => {
     const dateObj = new Date(dateString);
-
     const day = dateObj.getDate();
     const month = new Intl.DateTimeFormat('en-GB', { month: 'long' }).format(dateObj);
     const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long' }).format(dateObj);
@@ -34,7 +34,7 @@ const formatEventDate = (dateString, timeString) => {
         }
     }
 
-    return `${weekday} ${day}${getOrdinalSuffix(day)} ${month} ${year} ${time ? `| ${time}` : ''}`;
+    return `${weekday} ${day}${getOrdinalSuffix(day)} ${month} ${year}${time ? ` | ${time}` : ''}`;
 };
 
 const Updates = () => {
@@ -102,12 +102,104 @@ END:VCALENDAR`.trim();
             title,
             description
         );
-
         window.open(calendarDataUrl, '_blank');
     };
 
     // Current date and time for comparison
     const currentDate = new Date();
+
+
+    const handlePrint = () => {
+        // Create print window
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert('Please allow pop-ups to print the events.');
+            return;
+        }
+
+        const printContent = `
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Print Events</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif;
+                            padding: 20px;
+                            margin: 0;
+                        }
+                        h1 { 
+                            text-align: center;
+                            margin-bottom: 30px;
+                        }
+                        .event { 
+                            margin: 20px 0; 
+                            border-bottom: 1px solid #cccccc; 
+                            padding-bottom: 10px; 
+                        }
+                        .event-title { 
+                            font-weight: bold; 
+                            font-size: 20px; 
+                        }
+                        .event-date { 
+                            font-size: 15px; 
+                            color: #555; 
+                        }
+                        .event-description { 
+                            font-size: 17px; 
+                            font-weight: 200; 
+                            line-height: 1.5;
+                            color: #555; 
+                        }
+                        @media print {
+                            body { 
+                                width: 100%;
+                                margin: 0;
+                                padding: 15px;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>Calendar Event Updates Log</h1>
+                    ${updates?.acf?.updated_events?.map(event => `
+                        <div class="event">
+                            <div class="event-title">${event.title}</div>
+                            <div class="event-date">
+                                ${event.date_from || event.time ? `
+                                    <span style="font-size: 15px; padding-right: 3rem; font-weight: 700; margin-bottom: 15px;">
+                                        ${formatEventDate(event.date_from)}
+                                        ${event.date_to ? ` - ${formatEventDate(event.date_to)}` : ''}
+                                        ${event.time || event.time_end ? ` | ${event.time}${event.time_end ? ` - ${event.time_end}` : ''}` : ''}
+                                    </span>
+                                ` : ''}
+                            </div>
+                            ${event.description ? `
+                                <div class="event-description">
+                                    <span>${event.description.replace(/<\/?[^>]+(>|$)/g, " ")}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('') || '<p>No events available.</p>'}
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(function() {
+                                window.close();
+                            }, 500);
+                        }
+                    </script>
+                </body>
+            </html>
+        `;
+
+        // Write to the new window and trigger print
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+    };
+
 
     return (
         <>
@@ -119,6 +211,23 @@ END:VCALENDAR`.trim();
                         <Box marginBottom="5rem">
                             <H1Title>
                                 CALENDAR EVENT UPDATES LOG
+                                {updates.acf.updated_events && updates.acf.updated_events.length > 0 && (
+                                    <button
+                                        onClick={handlePrint}
+                                        style={{
+                                            marginLeft: "1rem",
+                                            border: "none",
+                                            background: "none",
+                                            textDecoration: "underline",
+                                            color: "#e23734",
+                                            fontSize: "19px",
+                                            textDecorationOffset: "4px",
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        <PrintIcon />
+                                    </button>
+                                )}
                             </H1Title>
                             <PText>
                                 {updates.acf.description}

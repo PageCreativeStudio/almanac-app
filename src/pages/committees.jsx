@@ -24,7 +24,7 @@ const Committees = () => {
       :
       (committees && committees.acf) && <H1Title>
         <Flex alignItems="center">
-          COMMITTEES 
+          COMMITTEES
           <Box marginLeft="1.5rem">
             <InfoPopup width="37rem">
               {committees.acf.infobox_text}
