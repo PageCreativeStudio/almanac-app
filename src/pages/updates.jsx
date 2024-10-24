@@ -37,6 +37,32 @@ const formatEventDate = (dateString, timeString) => {
     return `${weekday} ${day}${getOrdinalSuffix(day)} ${month} ${year}${time ? ` | ${time}` : ''}`;
 };
 
+const parseDateTime = (date, time) => {
+    const dateObj = new Date(date);
+    if (time) {
+        const timeParts = time.match(/(\d+):(\d+)\s*([ap]m)/i);
+        if (timeParts) {
+            let hours = parseInt(timeParts[1], 10);
+            const minutes = parseInt(timeParts[2], 10);
+            const period = timeParts[3].toLowerCase();
+            if (period === "pm" && hours !== 12) hours += 12;
+            if (period === "am" && hours === 12) hours = 0;
+            dateObj.setHours(hours, minutes);
+        }
+    } else {
+        dateObj.setHours(23, 59, 59, 999); // End of day if no time specified
+    }
+    return dateObj;
+};
+
+const isEventAvailable = (event) => {
+    const now = new Date();
+    const startDateTime = parseDateTime(event.date_from, event.time);
+    const endDateTime = parseDateTime(event.date_to || event.date_from, event.time_end || event.time);
+    
+    return endDateTime >= now;
+};
+
 const Updates = () => {
     const [updates, setUpdates] = useState(null);
 
@@ -105,18 +131,15 @@ END:VCALENDAR`.trim();
         window.open(calendarDataUrl, '_blank');
     };
 
-    // Current date and time for comparison
-    const currentDate = new Date();
-
-
     const handlePrint = () => {
-        // Create print window
+        const availableEvents = updates?.acf?.updated_events?.filter(isEventAvailable);
+        
         const printWindow = window.open('', '_blank');
         if (!printWindow) {
             alert('Please allow pop-ups to print the events.');
             return;
         }
-
+    
         const printContent = `
             <!DOCTYPE html>
             <html>
@@ -164,25 +187,27 @@ END:VCALENDAR`.trim();
                 </head>
                 <body>
                     <h1>Calendar Event Updates Log</h1>
-                    ${updates?.acf?.updated_events?.map(event => `
-                        <div class="event">
-                            <div class="event-title">${event.title}</div>
-                            <div class="event-date">
-                                ${event.date_from || event.time ? `
-                                    <span style="font-size: 15px; padding-right: 3rem; font-weight: 700; margin-bottom: 15px;">
-                                        ${formatEventDate(event.date_from)}
-                                        ${event.date_to ? ` - ${formatEventDate(event.date_to)}` : ''}
-                                        ${event.time || event.time_end ? ` | ${event.time}${event.time_end ? ` - ${event.time_end}` : ''}` : ''}
-                                    </span>
+                    ${availableEvents?.length > 0
+                        ? availableEvents.map(event => `
+                            <div class="event">
+                                <div class="event-title">${event.title}</div>
+                                <div class="event-date">
+                                    ${event.date_from || event.time ? `
+                                        <span style="font-size: 15px; padding-right: 3rem; font-weight: 700; margin-bottom: 15px;">
+                                            ${formatEventDate(event.date_from)}
+                                            ${event.date_to ? ` - ${formatEventDate(event.date_to)}` : ''}
+                                            ${event.time || event.time_end ? ` | ${event.time}${event.time_end ? ` - ${event.time_end}` : ''}` : ''}
+                                        </span>
+                                    ` : ''}
+                                </div>
+                                ${event.description ? `
+                                    <div class="event-description">
+                                        <span>${event.description.replace(/<\/?[^>]+(>|$)/g, " ")}</span>
+                                    </div>
                                 ` : ''}
                             </div>
-                            ${event.description ? `
-                                <div class="event-description">
-                                    <span>${event.description.replace(/<\/?[^>]+(>|$)/g, " ")}</span>
-                                </div>
-                            ` : ''}
-                        </div>
-                    `).join('') || '<p>No events available.</p>'}
+                        `).join('')
+                        : '<p>No upcoming events available.</p>'}
                     <script>
                         window.onload = function() {
                             window.print();
@@ -194,12 +219,13 @@ END:VCALENDAR`.trim();
                 </body>
             </html>
         `;
-
-        // Write to the new window and trigger print
+    
         printWindow.document.write(printContent);
         printWindow.document.close();
     };
 
+    const availableEvents = updates?.acf?.updated_events?.filter(isEventAvailable) || [];
+    const hasAvailableEvents = availableEvents.length > 0;
 
     return (
         <>
@@ -211,7 +237,7 @@ END:VCALENDAR`.trim();
                         <Box marginBottom="5rem">
                             <H1Title>
                                 CALENDAR EVENT UPDATES LOG
-                                {updates.acf.updated_events && updates.acf.updated_events.length > 0 && (
+                                {hasAvailableEvents && (
                                     <button
                                         onClick={handlePrint}
                                         style={{
@@ -234,58 +260,38 @@ END:VCALENDAR`.trim();
                             </PText>
                         </Box>
                     )}
-                    {updates?.acf?.updated_events?.length > 0 ? (
-                        updates.acf.updated_events.map((event, index) => {
-                            const eventEndDate = new Date(event.date_from);
-                            if (event.time_end) {
-                                const timeParts = event.time_end.match(/(\d+):(\d+)\s*([ap]m)/i);
-                                if (timeParts) {
-                                    let hours = parseInt(timeParts[1], 10);
-                                    const minutes = parseInt(timeParts[2], 10);
-                                    const period = timeParts[3].toLowerCase();
-                                    if (period === "pm" && hours !== 12) hours += 12;
-                                    eventEndDate.setHours(hours, minutes);
-                                }
-                            } else {
-                                eventEndDate.setHours(0, 0, 0, 0);
-                            }
-
-                            const hasPassed = eventEndDate < new Date();
-
-                            if (hasPassed) return null;
-
-                            return (
-                                <Wrapper key={index} style={{ borderTop: "solid 1px #bbbbbb", maxWidth: "88rem" }}>
-                                    {event.image && <Image backgroundImage={event.image} />}
-                                    <ContentWrapper style={{ padding: "3rem 7px 2rem", height: "auto", overflow: "auto" }}>
-                                        {event.title && (
-                                            <FlexContainer style={{ border: "0" }}>
-                                                <Title>
-                                                    <span style={{ fontWeight: "700", fontSize: "23px", textTransform: "capitalize", color: "rgb(226, 55, 52)", marginBottom: "11px", display: "block" }}>
-                                                        {event.title}
-                                                    </span>
-                                                    {(event.date_from || event.time) && (
-                                                        <Text style={{ fontSize: "15px", paddingRight: "3rem", fontWeight: "700", marginBottom: "15px" }}>
-                                                            {formatEventDate(event.date_from)}
-                                                            {event.date_to && <> - {formatEventDate(event.date_to)}</>}
-                                                            {(event.time || event.time_end) && ` | ${event.time}${event.time_end ? ` - ${event.time_end}` : ''}`}
-                                                        </Text>
-                                                    )}
-                                                    {event.description && (
-                                                        <OverflowWrapper scroll="auto">
-                                                            <Text style={{ fontSize: "17px", fontWeight: "400", textTransform: "none", lineHeight: "27px", maxWidth: "57rem" }} dangerouslySetInnerHTML={{ __html: event.description }} />
-                                                        </OverflowWrapper>
-                                                    )}
-                                                </Title>
-                                                <a style={{ placeSelf: "baseline" }} href="#" onClick={() => handleDownload(event)}>
-                                                    <DownloadIcon />
-                                                </a>
-                                            </FlexContainer>
-                                        )}
-                                    </ContentWrapper>
-                                </Wrapper>
-                            );
-                        })
+                    {hasAvailableEvents ? (
+                        availableEvents.map((event, index) => (
+                            <Wrapper key={index} style={{ borderTop: "solid 1px #bbbbbb", maxWidth: "88rem" }}>
+                                {event.image && <Image backgroundImage={event.image} />}
+                                <ContentWrapper style={{ padding: "3rem 7px 2rem", height: "auto", overflow: "auto" }}>
+                                    {event.title && (
+                                        <FlexContainer style={{ border: "0" }}>
+                                            <Title>
+                                                <span style={{ fontWeight: "700", fontSize: "23px", textTransform: "capitalize", color: "rgb(226, 55, 52)", marginBottom: "11px", display: "block" }}>
+                                                    {event.title}
+                                                </span>
+                                                {(event.date_from || event.time) && (
+                                                    <Text style={{ fontSize: "15px", paddingRight: "3rem", fontWeight: "700", marginBottom: "15px" }}>
+                                                        {formatEventDate(event.date_from)}
+                                                        {event.date_to && ` - ${formatEventDate(event.date_to)}`}
+                                                        {(event.time || event.time_end) && ` | ${event.time}${event.time_end ? ` - ${event.time_end}` : ''}`}
+                                                    </Text>
+                                                )}
+                                                {event.description && (
+                                                    <OverflowWrapper scroll="auto">
+                                                        <Text style={{ fontSize: "17px", fontWeight: "400", textTransform: "none", lineHeight: "27px", maxWidth: "57rem" }} dangerouslySetInnerHTML={{ __html: event.description }} />
+                                                    </OverflowWrapper>
+                                                )}
+                                            </Title>
+                                            <a style={{ placeSelf: "baseline" }} href="#" onClick={(e) => { e.preventDefault(); handleDownload(event); }}>
+                                                <DownloadIcon />
+                                            </a>
+                                        </FlexContainer>
+                                    )}
+                                </ContentWrapper>
+                            </Wrapper>
+                        ))
                     ) : (
                         <PText>No events available at this time.</PText>
                     )}
