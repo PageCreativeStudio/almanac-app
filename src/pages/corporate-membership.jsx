@@ -53,8 +53,8 @@ const Modal = ({ show, onClose, event }) => {
       fontFamily: "auto",
       height: "24px",
       width: "24px",
-      maxWidth:"24px",
-      padding:"0",
+      maxWidth: "24px",
+      padding: "0",
       lineHeight: "0",
       border: "solid 1px",
     },
@@ -161,7 +161,7 @@ END:VCALENDAR`.trim();
             style={{ display: "block", background: "none", height: "7rem", border: "none" }}
             onClick={handleDownload}
           >
-            <div style={{ marginTop: "-5rem", width: "6rem", height: "6rem", display: "flex", cursor:"pointer" }}>
+            <div style={{ marginTop: "-5rem", width: "6rem", height: "6rem", display: "flex", cursor: "pointer" }}>
               <DownloadIcon />
             </div>
           </button>
@@ -199,11 +199,37 @@ const CorporateMembership = () => {
         <>
           <H1Title>{corporateMembers.acf && corporateMembers.acf.title}</H1Title>
           {corporateMembers.acf && corporateMembers.acf.benefits && (
-            <div style={{ fontSize: "1.8rem", fontWeight: "400", padding: "0 5px", lineHeight: "30px" }}
+            <div
+              id="acf-benefits-content"
+              style={{
+                fontSize: "1.8rem",
+                fontWeight: "400",
+                padding: "0 5px",
+                lineHeight: "30px",
+              }}
               dangerouslySetInnerHTML={{
-                __html: corporateMembers.acf.benefits,
+                __html: `
+        <style>
+          #acf-benefits-content li {
+            margin-bottom: 4px;
+            list-style: disc;
+            margin-left: 2rem;
+          }
+          #acf-benefits-content b, #acf-benefits-content strong {
+            font-weight: 700;
+          }
+        </style>
+        ${corporateMembers.acf.benefits} `,
               }}
             />
+          )}
+
+
+
+          {corporateMembers.acf && corporateMembers.acf.events_title && (
+            <h2 style={{ fontSize: "27px", fontWeight: "800", margin: "3rem 3px 0px" }}>
+              {corporateMembers.acf.events_title}
+            </h2>
           )}
 
           {corporateMembers.acf && corporateMembers.acf.events && (
